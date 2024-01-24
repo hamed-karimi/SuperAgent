@@ -18,7 +18,7 @@ def training_meta_controller(utility):
     res_folder = utility.make_res_folder(sub_folder='MetaController')
     start_episode = utility.get_last_episode() + 1
     print('start episode: ', start_episode)
-    writer = SummaryWriter()
+    writer = SummaryWriter(log_dir='SuperAgentRuns')
     factory = ObjectFactory(utility)
     controller = factory.get_controller()
     meta_controller = factory.get_meta_controller()
