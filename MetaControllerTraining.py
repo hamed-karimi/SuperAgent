@@ -24,7 +24,7 @@ def training_meta_controller(utility):
     meta_controller = factory.get_meta_controller()
     # meta_controller_visualizer = MetaControllerVisualizer(utility)
     # environment_initialization_prob_map = np.ones(params.HEIGHT * params.WIDTH) * 100 / (params.HEIGHT * params.WIDTH)
-
+    print((torch.device("cuda" if torch.cuda.is_available() else "cpu")))
     for episode in range(start_episode, params.META_CONTROLLER_EPISODE_NUM):
         episode_begin = True
         episode_q_function_selected_goal_reward = 0
@@ -73,9 +73,9 @@ def training_meta_controller(utility):
                 # env_map_0 = environment.env_map.clone()
                 # need_0 = agent.need.clone()
                 agent_goal_map_0 = torch.stack([environment.env_map[:, 0, :, :], goal_map], dim=1)
-                print('agent_goal_map_0: ', agent_goal_map_0.device)
+                # print('agent_goal_map_0: ', agent_goal_map_0.device)
                 action_id = controller.get_action(agent_goal_map_0).clone()
-                print('action_id: ', action_id.device)
+                # print('action_id: ', action_id.device)
                 action_reward, dt = agent.take_action(environment, action_id)
                 action_rewards.append(action_reward)
                 # step_moving_costs.append(moving_cost)
