@@ -73,8 +73,9 @@ def training_meta_controller(utility):
                 # env_map_0 = environment.env_map.clone()
                 # need_0 = agent.need.clone()
                 agent_goal_map_0 = torch.stack([environment.env_map[:, 0, :, :], goal_map], dim=1)
-
+                print('agent_goal_map_0: ', agent_goal_map_0.device)
                 action_id = controller.get_action(agent_goal_map_0).clone()
+                print('action_id: ', action_id.device)
                 action_reward, dt = agent.take_action(environment, action_id)
                 action_rewards.append(action_reward)
                 # step_moving_costs.append(moving_cost)

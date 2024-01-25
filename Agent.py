@@ -97,6 +97,7 @@ class Agent:
         return total_need
 
     def take_action(self, environment, action_id):
+        print('environment.all_actions: ', environment.all_actions.device)
         selected_action = environment.all_actions[action_id].squeeze()  # to device
         self.location[0, :] += selected_action
         step_length = environment.get_cost(action_id)

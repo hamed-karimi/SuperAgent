@@ -167,7 +167,9 @@ class MetaController:
             with torch.no_grad():
                 env_map = environment.env_map.clone().to(self.device)
                 mental_states = agent.mental_states.to(self.device)
-                agent_env_params = torch.cat([agent.states_change, environment.object_reward], dim=1)
+                state_change = agent.states_change.to(self.device)
+                object_reward = environment.object_reward.to(self.device)
+                agent_env_params = torch.cat([state_change, object_reward], dim=1)
                 output_values = self.policy_net(env_map, mental_states, agent_env_params)
                 object_mask = environment.env_map.sum(dim=1)  # Either the agent or an object exists
                 # object_mask = torch.ones_like(output_values)

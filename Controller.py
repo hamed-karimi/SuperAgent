@@ -27,7 +27,7 @@ class Node:
 class Controller:
 
     def __init__(self, height, width):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.height = height
         self.width = width
         # self.all_actions = np.array([[0, 0],
@@ -100,6 +100,6 @@ class Controller:
     def get_action(self, agent_goal_map):
         actions = self.get_shortest_path_to_object(agent_goal_map)
         if len(actions) > 0:
-            return torch.tensor([self.action_id_dict[str(actions[0])]]).to(self.device)
+            return torch.tensor([self.action_id_dict[str(actions[0])]]) # .to(self.device)
         else:
-            return torch.tensor([0]).to(self.device)  # staying
+            return torch.tensor([0])# .to(self.device)  # staying
