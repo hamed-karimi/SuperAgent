@@ -7,7 +7,7 @@ from itertools import product
 
 
 class Agent:
-    def __init__(self, h, w, n, prob_init_needs_equal, predefined_location,
+    def __init__(self, h, w, n, prob_init_mental_states_equal, predefined_location,
                  preassigned_mental_states, preassigned_state_change, lambda_satisfaction, epsilon_function='Linear'):  # n: number of all_mental_states
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.height = h
@@ -16,7 +16,7 @@ class Agent:
         self.num_mental_states = n
         self.range_of_initial_states = [-12, 12]
         self.range_of_state_change = [0, 5]
-        self.prob_init_needs_equal = prob_init_needs_equal
+        self.prob_init_mental_states_equal = prob_init_mental_states_equal
         self.mental_states = None
         self.states_change = None
         self.set_mental_states(preassigned_mental_states)
@@ -49,7 +49,7 @@ class Agent:
             mental_states = torch.tensor(preassigned_states)
         else:
             p = random.uniform(0, 1)
-            if p <= self.prob_init_needs_equal:
+            if p <= self.prob_init_mental_states_equal:
                 mental_states = torch.rand((1, self.num_mental_states))
                 mental_states[0, 1:] = mental_states[0, 0]
             else:

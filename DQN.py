@@ -29,25 +29,27 @@ class hDQN(nn.Module):
 
         kernel_size = 2
         self.conv1 = nn.Conv2d(in_channels=env_layer_num,
-                               out_channels=self.params.DQN_CONV1_OUT_CHANNEL,
+                               out_channels=128,
                                kernel_size=kernel_size)
-        self.conv2 = nn.Conv2d(in_channels=self.params.DQN_CONV1_OUT_CHANNEL,
-                               out_channels=self.params.DQN_CONV2_OUT_CHANNEL,
+        self.conv2 = nn.Conv2d(in_channels=128,
+                               out_channels=96,
                                kernel_size=kernel_size + 1)
-        self.conv3 = nn.Conv2d(in_channels=self.params.DQN_CONV2_OUT_CHANNEL,
-                               out_channels=self.params.DQN_CONV2_OUT_CHANNEL,
+        self.conv3 = nn.Conv2d(in_channels=96,
+                               out_channels=96,
                                kernel_size=kernel_size + 2)
 
-        self.fc1 = nn.Linear(in_features=self.params.DQN_CONV2_OUT_CHANNEL * 4,
+        self.fc1 = nn.Linear(in_features=96 * 4,
+                             out_features=320)
+
+        self.fc2 = nn.Linear(in_features=320 + self.params.OBJECT_TYPE_NUM + 4,  # +4: 2 for b matrix, and 2 other for u
                              out_features=256)
 
-        self.fc2 = nn.Linear(in_features=256 + self.params.OBJECT_TYPE_NUM + 4,  # +4: 2 for b matrix, and 2 other for u
+        self.fc3 = nn.Linear(in_features=256,
                              out_features=192)
 
-        self.fc3 = nn.Linear(in_features=192,
+        self.fc4 = nn.Linear(in_features=192,
                              out_features=128)
-
-        self.fc4 = nn.Linear(in_features=128,
+        self.fc5 = nn.Linear(in_features=128,
                              out_features=64)
 
     def forward(self, env_map, mental_states, states_params):
@@ -63,7 +65,8 @@ class hDQN(nn.Module):
         y = torch.concat([y, mental_states, states_params], dim=1)
         y = F.relu(self.fc2(y))
         y = F.relu(self.fc3(y))
-        y = self.fc4(y)
+        y = F.relu(self.fc4(y))
+        y = F.relu(self.fc5(y))
 
         y = y.reshape(batch_size,
                       self.params.HEIGHT,

@@ -16,8 +16,8 @@ class ObjectFactory:
 
     def get_agent(self, pre_location, preassigned_mental_states, preassigned_mental_states_change):
         agent = Agent(self.params.HEIGHT, self.params.WIDTH, n=self.params.OBJECT_TYPE_NUM,
-                      prob_init_needs_equal=self.params.PROB_OF_INIT_NEEDS_EQUAL, predefined_location=pre_location,
-                      preassigned_mental_states=preassigned_mental_states,
+                      prob_init_mental_states_equal=self.params.PROB_OF_INIT_NEEDS_EQUAL,
+                      predefined_location=pre_location, preassigned_mental_states=preassigned_mental_states,
                       preassigned_state_change=preassigned_mental_states_change,
                       lambda_satisfaction=self.params.LAMBDA_SATISFACTION,
                       epsilon_function=self.params.EPSILON_FUNCTION)
