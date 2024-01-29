@@ -66,7 +66,7 @@ class hDQN(nn.Module):
         y = F.relu(self.fc2(y))
         y = F.relu(self.fc3(y))
         y = F.relu(self.fc4(y))
-        y = F.relu(self.fc5(y))
+        y = self.fc5(y)
 
         y = y.reshape(batch_size,
                       self.params.HEIGHT,
