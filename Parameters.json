@@ -12,7 +12,7 @@
     "CHECKPOINT_SAVE_FREQUENCY": 1000000,
     "EPISODE_LEN" : 5,
     "EPISODE_STEPS": 50,
-    "PRETRAINED_META_CONTROLLER": "/data/karimike/Documents/Action Prediction/SuperAgent/tr2024-01-26_16-47-02",
+    "PRETRAINED_META_CONTROLLER": "/data/karimike/Documents/Action Prediction/SuperAgent/tr2024-01-26_16-47-02/MetaController",
     "META_CONTROLLER_TARGET_UPDATE": 1000,
     "META_CONTROLLER_BATCH_SIZE" : 64,
     "META_CONTROLLER_MEMORY_CAPACITY" : 2500000,

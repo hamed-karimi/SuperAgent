@@ -37,7 +37,9 @@ class MetaController:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.policy_net = hDQN(params).to(self.device)
         if pre_trained_weights_path != "":
-            self.policy_net.load_state_dict(torch.load(os.path.join(pre_trained_weights_path, 'policynet.pt'),
+            self.policy_net.load_state_dict(torch.load(os.path.join(pre_trained_weights_path,
+                                                                    'checkpoints',
+                                                                    'policynet_checkpoint.pt'),
                                                        map_location=self.device))
         else:
             self.policy_net.apply(weights_init_orthogonal)
