@@ -14,12 +14,16 @@ class Utilities:
             self.params = json.load(json_file,
                                     object_hook=lambda d: SimpleNamespace(**d))
 
-    def make_res_folder(self, sub_folder=''):
-        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder = 'tr{0}'.format(now)
-        dirname = os.path.join(folder, sub_folder)
+    def make_res_folder(self, sub_folder='', pre_created=''):
+        if pre_created != '':
+            folder = None
+            dirname = pre_created
+        else:
+            now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            folder = 'tr{0}'.format(now)
+            dirname = os.path.join(folder, sub_folder)
 
-        if os.path.exists(folder) and not os.path.exists(dirname):
+        if folder is not None and os.path.exists(folder) and not os.path.exists(dirname):
             os.mkdir(dirname)
         elif not os.path.exists(dirname):
             os.makedirs(dirname)

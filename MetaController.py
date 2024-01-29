@@ -1,3 +1,4 @@
+import os.path
 import pickle
 import dill
 from copy import deepcopy
@@ -36,7 +37,7 @@ class MetaController:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.policy_net = hDQN(params).to(self.device)
         if pre_trained_weights_path != "":
-            self.policy_net.load_state_dict(torch.load(pre_trained_weights_path,
+            self.policy_net.load_state_dict(torch.load(os.path.join(pre_trained_weights_path, 'policynet.pt'),
                                                        map_location=self.device))
         else:
             self.policy_net.apply(weights_init_orthogonal)
@@ -77,24 +78,29 @@ class MetaController:
         checkpoint_dir = params.CHECKPOINTS_DIR
         self.policy_net.load_state_dict(torch.load(pjoin(checkpoint_dir, 'policynet_checkpoint.pt')))
         self.target_net.load_state_dict(torch.load(pjoin(checkpoint_dir, 'targetnet_checkpoint.pt')))
-        with open(pjoin(checkpoint_dir, 'meta_controller.pkl'), 'rb') as f1:
-            checkpoint_dict = pickle.load(f1)
-            self.gammas = checkpoint_dict['gammas']
-            self.gamma_episodes = checkpoint_dict['gamma_episodes']
-            self.gamma_delay_episodes = checkpoint_dict['gamma_delay_episode']
-            self.all_gammas_ramped_up = checkpoint_dict['all_gammas_ramped_up']
-        for q_i in range(len(self.gammas) - 1):
-            Q = deepcopy(self.target_net)
-            Q.load_state_dict(torch.load(pjoin(checkpoint_dir, 'Q_{0}_checkpoint.pt'.format(q_i))))
-            self.saved_target_nets.append(deepcopy(Q))
+        try:
+            with open(pjoin(checkpoint_dir, 'meta_controller.pkl'), 'rb') as f1:
+                checkpoint_dict = pickle.load(f1)
+                self.gammas = checkpoint_dict['gammas']
+                self.gamma_episodes = checkpoint_dict['gamma_episodes']
+                self.gamma_delay_episodes = checkpoint_dict['gamma_delay_episode']
+                self.all_gammas_ramped_up = checkpoint_dict['all_gammas_ramped_up']
+            for q_i in range(len(self.gammas) - 1):
+                Q = deepcopy(self.target_net)
+                Q.load_state_dict(torch.load(pjoin(checkpoint_dir, 'Q_{0}_checkpoint.pt'.format(q_i))))
+                self.saved_target_nets.append(deepcopy(Q))
 
-        with open(pjoin(checkpoint_dir, 'memory.pkl'), 'rb') as f2:
-            memory = dill.load(f2)
-        with open(pjoin(checkpoint_dir, 'weights.pkl'), 'rb') as f3:
-            weights = dill.load(f3)
-        with open(pjoin(checkpoint_dir, 'train.pkl'), 'rb') as f4:
-            train_dict = pickle.load(f4)
-            last_episode = train_dict['episode']
+            with open(pjoin(checkpoint_dir, 'memory.pkl'), 'rb') as f2:
+                memory = dill.load(f2)
+            with open(pjoin(checkpoint_dir, 'weights.pkl'), 'rb') as f3:
+                weights = dill.load(f3)
+            with open(pjoin(checkpoint_dir, 'train.pkl'), 'rb') as f4:
+                train_dict = pickle.load(f4)
+                last_episode = train_dict['episode']
+        except:
+            print('Memory, and Gammas not found. Continuing will empy memory')
+            memory, weights = None, None
+            last_episode = -1
         self.memory = MetaControllerMemory(params.META_CONTROLLER_MEMORY_CAPACITY,
                                            checkpoint_memory=memory,
                                            checkpoint_weights=weights,
