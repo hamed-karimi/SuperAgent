@@ -42,7 +42,7 @@ class hDQN(nn.Module):
                              out_features=320)
 
         self.fc2 = nn.Linear(in_features=320 + self.params.OBJECT_TYPE_NUM + 4,  # +4: 2 for b matrix, and 2 other for u
-                             out_features=256)
+                             out_features=256)  # Try dense architecture, or try multiplying the value for parameters by 320/6
 
         self.fc3 = nn.Linear(in_features=256,
                              out_features=192)

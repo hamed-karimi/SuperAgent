@@ -126,7 +126,7 @@ def training_meta_controller(utility):
                 if goal_reached or steps == params.EPISODE_STEPS:
                     break
 
-            episode_meta_controller_reward += steps_reward.mean()
+            episode_meta_controller_reward += steps_reward[0, :steps].mean()
             at_loss = meta_controller.optimize()
             episode_meta_controller_loss += get_meta_controller_loss(at_loss)
             episode_q_function_selected_goal_reward += MetaControllerVisualizer.get_qfunction_selected_goal_map(
