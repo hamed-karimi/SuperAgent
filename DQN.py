@@ -27,29 +27,32 @@ class hDQN(nn.Module):
         super(hDQN, self).__init__()
         env_layer_num = self.params.OBJECT_TYPE_NUM + 1  # +1 for agent layer
 
-        kernel_size = 2
+        kernel_size = 1
         self.conv1 = nn.Conv2d(in_channels=env_layer_num,
                                out_channels=128,
                                kernel_size=kernel_size)
         self.conv2 = nn.Conv2d(in_channels=128,
-                               out_channels=96,
+                               out_channels=64,
                                kernel_size=kernel_size + 1)
-        self.conv3 = nn.Conv2d(in_channels=96,
-                               out_channels=96,
+        self.conv3 = nn.Conv2d(in_channels=64,
+                               out_channels=64,
                                kernel_size=kernel_size + 2)
+        self.conv4 = nn.Conv2d(in_channels=64,
+                               out_channels=64,
+                               kernel_size=kernel_size + 2)
+        each_channel_size = params.WIDTH - kernel_size - (kernel_size + 1) - (kernel_size + 2) - (kernel_size + 2) + 4
+        self.fc1 = nn.Linear(in_features=64 * each_channel_size**2,
+                             out_features=64)
 
-        self.fc1 = nn.Linear(in_features=96 * 4,
-                             out_features=320)
+        self.fc2 = nn.Linear(in_features=(each_channel_size**2+1)*64 + self.params.OBJECT_TYPE_NUM + 4,  # +4: 2 for b matrix, and 2 other for u
+                             out_features=64)  # Try dense architecture, or try multiplying the value for parameters by 320/6
 
-        self.fc2 = nn.Linear(in_features=320 + self.params.OBJECT_TYPE_NUM + 4,  # +4: 2 for b matrix, and 2 other for u
-                             out_features=256)  # Try dense architecture, or try multiplying the value for parameters by 320/6
+        self.fc3 = nn.Linear(in_features=(each_channel_size**2+2)*64 + (self.params.OBJECT_TYPE_NUM + 4),
+                             out_features=64)
 
-        self.fc3 = nn.Linear(in_features=256,
-                             out_features=192)
-
-        self.fc4 = nn.Linear(in_features=192,
-                             out_features=128)
-        self.fc5 = nn.Linear(in_features=128,
+        self.fc4 = nn.Linear(in_features=(each_channel_size**2+3)*64 + (self.params.OBJECT_TYPE_NUM + 4),
+                             out_features=64)
+        self.fc5 = nn.Linear(in_features=(each_channel_size**2+4)*64 + (self.params.OBJECT_TYPE_NUM + 4),
                              out_features=64)
 
     def forward(self, env_map, mental_states, states_params):
@@ -58,15 +61,16 @@ class hDQN(nn.Module):
         y = F.relu(self.conv1(env_map))
         y = F.relu(self.conv2(y))
         y = F.relu(self.conv3(y))
-        y = y.flatten(start_dim=1, end_dim=-1)
+        y = F.relu(self.conv4(y))
+        y0 = y.flatten(start_dim=1, end_dim=-1)
         # y = torch.concat([y, agent_need], dim=1)
         # y = self.batch_norm(y)
-        y = F.relu(self.fc1(y))
-        y = torch.concat([y, mental_states, states_params], dim=1)
-        y = F.relu(self.fc2(y))
-        y = F.relu(self.fc3(y))
-        y = F.relu(self.fc4(y))
-        y = self.fc5(y)
+        y1 = F.relu(self.fc1(y0))
+        y1 = torch.concat([y1, mental_states, states_params], dim=1)
+        y2 = F.relu(self.fc2(torch.concat([y0, y1], dim=1)))  # or first relu then fc (try this for all layers)
+        y3 = F.relu(self.fc3(torch.concat([y0, y1, y2], dim=1)))
+        y4 = F.relu(self.fc4(torch.concat([y0, y1, y2, y3], dim=1)))
+        y = self.fc5(torch.concat([y0, y1, y2, y3, y4], dim=1))
 
         y = y.reshape(batch_size,
                       self.params.HEIGHT,
