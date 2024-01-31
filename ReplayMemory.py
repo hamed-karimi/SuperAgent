@@ -57,9 +57,12 @@ class ReplayMemory():
     #         self.weights_size += 1
 
     def weighted_sample_without_replacement(self, k):
-        sample = np.random.choice(self.memory[:self.experience_index],
-                                  size=k,
-                                  replace=False)
+        sample_indices = random.sample(range(0, min(self.experience_index, self.max_len)), k)
+        sample = self.memory[sample_indices]
+        # sample = np.random.choice(self.memory[:self.experience_index],
+        #                           size=k,
+        #                           replace=False)
+
         # sample = np.random.choice(self.memory[:self.experience_index],
         #                           size=k,
         #                           replace=False,
